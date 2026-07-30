@@ -4,9 +4,11 @@ buildscript {
 		gradlePluginPortal()
 	}
 	dependencies {
-		// Dynamic patch version: avoids pinning to a snapshot/patch build that
-		// may have rotated off Fabric's maven by the time this is built.
-		classpath 'net.fabricmc:fabric-loom:1.6.+'
+		// 1.11.x is the last branch documented to support both Gradle 8.14
+		// and 9.0; newer Loom branches require Gradle 9.2+. Dynamic patch
+		// version avoids pinning to a specific build that may rotate off
+		// Fabric's maven.
+		classpath 'net.fabricmc:fabric-loom:1.11.+'
 	}
 }
 

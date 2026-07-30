@@ -35,6 +35,10 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          # Pin to a version fabric-loom 1.11.x explicitly supports; the
+          # runner's default Gradle can be too new for Loom.
+          gradle-version: 8.14.3
 
       - name: Build
         run: gradle build --stacktrace --no-daemon
