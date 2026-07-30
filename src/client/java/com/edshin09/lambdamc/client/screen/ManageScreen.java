@@ -8,6 +8,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -196,5 +197,21 @@ public class ManageScreen extends HandledScreen<ManageScreenHandler> {
 				? Text.literal("상품을 클릭해 선택하세요").formatted(Formatting.GRAY)
 				: Text.literal("선택됨: #" + (selectedIndex + 1)).formatted(Formatting.AQUA);
 		drawContext.drawText(textRenderer, status, 8, controlsY - 9, 0xFFFFFF, false);
+	}
+
+	/** Same manual hover hit-test as {@link TradeScreen} - see there for why. */
+	@Override
+	protected void drawMouseoverTooltip(DrawContext context, int mouseX, int mouseY) {
+		for (Slot slot : handler.slots) {
+			if (!slot.hasStack()) {
+				continue;
+			}
+			int slotX = x + slot.x;
+			int slotY = y + slot.y;
+			if (mouseX >= slotX && mouseX < slotX + 16 && mouseY >= slotY && mouseY < slotY + 16) {
+				context.drawItemTooltip(this.textRenderer, slot.getStack(), mouseX, mouseY);
+				return;
+			}
+		}
 	}
 }

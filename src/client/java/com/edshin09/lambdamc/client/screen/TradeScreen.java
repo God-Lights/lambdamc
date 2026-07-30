@@ -5,6 +5,7 @@ import com.edshin09.lambdamc.screen.TradeScreenHandler;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
@@ -26,6 +27,11 @@ public class TradeScreen extends HandledScreen<TradeScreenHandler> {
 	private static final int BORDER_COLOR = 0xFF4A3A2A;
 	private static final int SLOT_COLOR = 0x60FFFFFF;
 	private static final int DIVIDER_COLOR = 0xFF4A3A2A;
+	private static final int EXCHANGE_TINT = 0x4055FFFF;
+	private static final int FIXED_TINT = 0x40FF55FF;
+	private static final int DAILY_TINT = 0x40FFAA00;
+	private static final int BUY_SIDE_TINT = 0x4055FF55;
+	private static final int SELL_SIDE_TINT = 0x40FFAA00;
 
 	private final boolean isDefaultShop;
 
@@ -47,6 +53,7 @@ public class TradeScreen extends HandledScreen<TradeScreenHandler> {
 				int slotX = x + SLOT_LEFT + col * 18;
 				int slotY = y + GRID_TOP + row * 18;
 				drawContext.fill(slotX, slotY, slotX + 18, slotY + 18, SLOT_COLOR);
+				drawContext.fill(slotX, slotY, slotX + 18, slotY + 18, sectionTint(row, col));
 			}
 		}
 
@@ -55,6 +62,24 @@ public class TradeScreen extends HandledScreen<TradeScreenHandler> {
 		} else {
 			drawCustomShopSplit(drawContext);
 		}
+	}
+
+	/** Faint per-section color wash so each part of the shop reads as its own "counter". */
+	private int sectionTint(int row, int col) {
+		if (isDefaultShop) {
+			return switch (row) {
+				case 0 -> EXCHANGE_TINT;
+				case 1 -> FIXED_TINT;
+				default -> DAILY_TINT;
+			};
+		}
+		if (col < 4) {
+			return BUY_SIDE_TINT;
+		}
+		if (col > 4) {
+			return SELL_SIDE_TINT;
+		}
+		return 0;
 	}
 
 	/** Row 0 = exchange, row 1 = fixed offers, rows 2-4 = daily rotation. */
@@ -86,12 +111,38 @@ public class TradeScreen extends HandledScreen<TradeScreenHandler> {
 
 		int labelY = GRID_TOP - 10;
 		if (isDefaultShop) {
-			drawContext.drawText(textRenderer, Text.literal("교환 / 고정 / 일일 상품").formatted(Formatting.GRAY), 8, labelY, 0xFFFFFF, false);
+			Text label = Text.literal("교환").formatted(Formatting.AQUA)
+					.append(Text.literal(" / ").formatted(Formatting.DARK_GRAY))
+					.append(Text.literal("고정").formatted(Formatting.LIGHT_PURPLE))
+					.append(Text.literal(" / ").formatted(Formatting.DARK_GRAY))
+					.append(Text.literal("일일 상품").formatted(Formatting.GOLD));
+			drawContext.drawText(textRenderer, label, 8, labelY, 0xFFFFFF, false);
 		} else {
 			drawContext.drawText(textRenderer, Text.literal("◀ 구매").formatted(Formatting.GREEN), 8, labelY, 0xFFFFFF, false);
 			Text sellLabel = Text.literal("판매 ▶").formatted(Formatting.GOLD);
 			int sellWidth = textRenderer.getWidth(sellLabel);
 			drawContext.drawText(textRenderer, sellLabel, backgroundWidth - sellWidth - 8, labelY, 0xFFFFFF, false);
+		}
+	}
+
+	/**
+	 * Manual hover hit-test instead of relying on {@code focusedSlot}: this screen's
+	 * slots are drawn every frame from a supplier-refreshed display inventory, and the
+	 * default tracking was found to miss hover state in testing, so tooltips never
+	 * appeared. Hit-testing directly against the handler's slots is a robust fallback.
+	 */
+	@Override
+	protected void drawMouseoverTooltip(DrawContext context, int mouseX, int mouseY) {
+		for (Slot slot : handler.slots) {
+			if (!slot.hasStack()) {
+				continue;
+			}
+			int slotX = x + slot.x;
+			int slotY = y + slot.y;
+			if (mouseX >= slotX && mouseX < slotX + 16 && mouseY >= slotY && mouseY < slotY + 16) {
+				context.drawItemTooltip(this.textRenderer, slot.getStack(), mouseX, mouseY);
+				return;
+			}
 		}
 	}
 }
