@@ -95,7 +95,7 @@ public final class ShopItems {
 			book(Enchantments.SILK_TOUCH, 1, 1600),
 			book(Enchantments.LOOTING, 3, 1500),
 			book(Enchantments.INFINITY, 1, 1800),
-			book(Enchantments.SWEEPING_EDGE, 3, 1400),
+			book(Enchantments.SWEEPING, 3, 1400),
 			book(Enchantments.POWER, 5, 1800),
 			book(Enchantments.PUNCH, 2, 900),
 			book(Enchantments.FLAME, 1, 900),

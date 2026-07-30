@@ -43,7 +43,12 @@ public final class Listing {
 
 	/** True if two listings refer to the exact same item (id + NBT), ignoring count. */
 	public boolean matches(ItemStack stack) {
-		return ItemStack.areItemsEqual(template, stack) && ItemStack.areNbtEqual(template, stack);
+		return sameItem(template, stack);
+	}
+
+	/** True if two stacks are the same item with the same NBT, ignoring count. */
+	public static boolean sameItem(ItemStack a, ItemStack b) {
+		return ItemStack.areItemsEqual(a, b) && java.util.Objects.equals(a.getNbt(), b.getNbt());
 	}
 
 	public NbtCompound writeNbt() {

@@ -91,7 +91,7 @@ public final class CustomShop {
 		int count = 0;
 		for (int i = 0; i < storage.size(); i++) {
 			ItemStack stack = storage.getStack(i);
-			if (!stack.isEmpty() && ItemStack.areItemsEqual(stack, template) && ItemStack.areNbtEqual(stack, template)) {
+			if (!stack.isEmpty() && Listing.sameItem(stack, template)) {
 				count += stack.getCount();
 			}
 		}
@@ -106,7 +106,7 @@ public final class CustomShop {
 		int remaining = amount;
 		for (int i = 0; i < storage.size() && remaining > 0; i++) {
 			ItemStack stack = storage.getStack(i);
-			if (stack.isEmpty() || !ItemStack.areItemsEqual(stack, template) || !ItemStack.areNbtEqual(stack, template)) {
+			if (stack.isEmpty() || !Listing.sameItem(stack, template)) {
 				continue;
 			}
 			int take = Math.min(remaining, stack.getCount());
@@ -127,8 +127,7 @@ public final class CustomShop {
 				remainder = ItemStack.EMPTY;
 				break;
 			}
-			if (ItemStack.areItemsEqual(existing, remainder) && ItemStack.areNbtEqual(existing, remainder)
-					&& existing.getCount() < existing.getMaxCount()) {
+			if (Listing.sameItem(existing, remainder) && existing.getCount() < existing.getMaxCount()) {
 				int space = existing.getMaxCount() - existing.getCount();
 				int move = Math.min(space, remainder.getCount());
 				existing.increment(move);

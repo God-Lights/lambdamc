@@ -291,7 +291,7 @@ public final class ShopManager {
 		PlayerInventory inventory = player.getInventory();
 		for (int i = 0; i < inventory.size(); i++) {
 			ItemStack stack = inventory.getStack(i);
-			if (!stack.isEmpty() && ItemStack.areItemsEqual(stack, template) && ItemStack.areNbtEqual(stack, template)) {
+			if (!stack.isEmpty() && Listing.sameItem(stack, template)) {
 				return true;
 			}
 		}
@@ -302,7 +302,7 @@ public final class ShopManager {
 		PlayerInventory inventory = player.getInventory();
 		for (int i = 0; i < inventory.size(); i++) {
 			ItemStack stack = inventory.getStack(i);
-			if (!stack.isEmpty() && ItemStack.areItemsEqual(stack, template) && ItemStack.areNbtEqual(stack, template)) {
+			if (!stack.isEmpty() && Listing.sameItem(stack, template)) {
 				stack.decrement(1);
 				return;
 			}
