@@ -56,11 +56,8 @@ public final class LambdaCommand {
 												.suggests(LambdaCommand::suggestAllShops)
 												.executes(ctx -> openShop(ctx.getSource(), StringArgumentType.getString(ctx, "name")))))
 								.then(CommandManager.literal("create")
-										.then(CommandManager.argument("type", StringArgumentType.word())
-												.then(CommandManager.argument("name", StringArgumentType.string())
-														.executes(ctx -> createShop(ctx.getSource(),
-																StringArgumentType.getString(ctx, "type"),
-																StringArgumentType.getString(ctx, "name"))))))
+										.then(CommandManager.argument("name", StringArgumentType.string())
+												.executes(ctx -> createShop(ctx.getSource(), StringArgumentType.getString(ctx, "name")))))
 								.then(CommandManager.literal("manage")
 										.then(CommandManager.argument("name", StringArgumentType.string())
 												.suggests(LambdaCommand::suggestOwnShops)
@@ -68,10 +65,21 @@ public final class LambdaCommand {
 								.then(CommandManager.literal("addproduct")
 										.then(CommandManager.argument("name", StringArgumentType.string())
 												.suggests(LambdaCommand::suggestOwnShops)
-												.then(CommandManager.argument("price", IntegerArgumentType.integer(0))
-														.executes(ctx -> addProduct(ctx.getSource(),
-																StringArgumentType.getString(ctx, "name"),
-																IntegerArgumentType.getInteger(ctx, "price"))))))
+												.then(CommandManager.argument("kind", StringArgumentType.word())
+														.then(CommandManager.argument("price", IntegerArgumentType.integer(0))
+																.executes(ctx -> addProduct(ctx.getSource(),
+																		StringArgumentType.getString(ctx, "name"),
+																		StringArgumentType.getString(ctx, "kind"),
+																		IntegerArgumentType.getInteger(ctx, "price")))))))
+								.then(CommandManager.literal("setprice")
+										.then(CommandManager.argument("name", StringArgumentType.string())
+												.suggests(LambdaCommand::suggestOwnShops)
+												.then(CommandManager.argument("index", IntegerArgumentType.integer(1))
+														.then(CommandManager.argument("price", IntegerArgumentType.integer(0))
+																.executes(ctx -> setPrice(ctx.getSource(),
+																		StringArgumentType.getString(ctx, "name"),
+																		IntegerArgumentType.getInteger(ctx, "index"),
+																		IntegerArgumentType.getInteger(ctx, "price")))))))
 								.then(CommandManager.literal("removeproduct")
 										.then(CommandManager.argument("name", StringArgumentType.string())
 												.suggests(LambdaCommand::suggestOwnShops)
@@ -116,10 +124,26 @@ public final class LambdaCommand {
 	}
 
 	// ---------------------------------------------------------------------
+	// dedicated-server gate: this mod's economy/shops are multiplayer-server
+	// content only, so singleplayer/LAN worlds never accumulate any of it.
+	// ---------------------------------------------------------------------
+
+	private static boolean requireDedicated(ServerCommandSource source) {
+		if (!source.getServer().isDedicated()) {
+			source.sendError(Text.translatable("lambdamc.dedicated_only"));
+			return false;
+		}
+		return true;
+	}
+
+	// ---------------------------------------------------------------------
 	// shop list / open
 	// ---------------------------------------------------------------------
 
 	private static int listShops(ServerCommandSource source, String sort, String search) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		MinecraftServer server = source.getServer();
 		CustomShopData data = CustomShopData.get(server);
 		CustomShopData.Comparator comparator = CustomShopData.Comparator.parse(sort);
@@ -133,7 +157,7 @@ public final class LambdaCommand {
 		source.sendFeedback(() -> defaultLine, false);
 
 		for (CustomShop shop : shops) {
-			Text line = Text.literal("» " + shop.getName() + " (" + shop.getOwnerName() + ", " + shop.getType().displayName + ")")
+			Text line = Text.literal("» " + shop.getName() + " (" + shop.getOwnerName() + ")")
 					.styled(style -> style.withColor(Formatting.YELLOW)
 							.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lambdamc shop open \"" + escape(shop.getName()) + "\""))
 							.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("클릭해서 입장"))));
@@ -149,6 +173,9 @@ public final class LambdaCommand {
 	}
 
 	private static int openShop(ServerCommandSource source, String name) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		if (!(source.getEntity() instanceof ServerPlayerEntity player)) {
 			source.sendError(Text.literal("플레이어만 사용할 수 있는 명령어입니다."));
 			return 0;
@@ -174,13 +201,15 @@ public final class LambdaCommand {
 	// custom shop CRUD
 	// ---------------------------------------------------------------------
 
-	private static int createShop(ServerCommandSource source, String typeRaw, String name) {
+	private static int createShop(ServerCommandSource source, String name) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		if (!(source.getEntity() instanceof ServerPlayerEntity player)) {
 			source.sendError(Text.literal("플레이어만 사용할 수 있는 명령어입니다."));
 			return 0;
 		}
-		ShopType type = ShopType.parse(typeRaw);
-		ShopManager.Result result = ShopManager.createShop(player, name, type);
+		ShopManager.Result result = ShopManager.createShop(player, name);
 		if (result.success()) {
 			source.sendFeedback(() -> Text.literal(result.message()).formatted(Formatting.GREEN), false);
 			return 1;
@@ -191,6 +220,9 @@ public final class LambdaCommand {
 	}
 
 	private static int manageShop(ServerCommandSource source, String name) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		if (!(source.getEntity() instanceof ServerPlayerEntity player)) {
 			source.sendError(Text.literal("플레이어만 사용할 수 있는 명령어입니다."));
 			return 0;
@@ -209,25 +241,57 @@ public final class LambdaCommand {
 		return 1;
 	}
 
-	private static int addProduct(ServerCommandSource source, String name, int price) {
+	private static int addProduct(ServerCommandSource source, String name, String kindRaw, int price) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		if (!(source.getEntity() instanceof ServerPlayerEntity player)) {
 			return 0;
 		}
-		ShopManager.Result result = ShopManager.addProduct(player, name, price);
+		ShopType kind = ShopType.parse(kindRaw);
+		ShopManager.Result result = ShopManager.addProduct(player, name, kind, price);
 		source.sendFeedback(() -> Text.literal(result.message()).formatted(result.success() ? Formatting.GREEN : Formatting.RED), false);
+		refreshIfManaging(player);
+		return result.success() ? 1 : 0;
+	}
+
+	private static int setPrice(ServerCommandSource source, String name, int index, int price) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
+		if (!(source.getEntity() instanceof ServerPlayerEntity player)) {
+			return 0;
+		}
+		ShopManager.Result result = ShopManager.setPrice(player, name, index, price);
+		source.sendFeedback(() -> Text.literal(result.message()).formatted(result.success() ? Formatting.GREEN : Formatting.RED), false);
+		refreshIfManaging(player);
 		return result.success() ? 1 : 0;
 	}
 
 	private static int removeProduct(ServerCommandSource source, String name, int index) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		if (!(source.getEntity() instanceof ServerPlayerEntity player)) {
 			return 0;
 		}
 		ShopManager.Result result = ShopManager.removeProduct(player, name, index);
 		source.sendFeedback(() -> Text.literal(result.message()).formatted(result.success() ? Formatting.GREEN : Formatting.RED), false);
+		refreshIfManaging(player);
 		return result.success() ? 1 : 0;
 	}
 
+	/** Re-syncs the player's currently open shop-management screen, if any, after a command-driven edit. */
+	private static void refreshIfManaging(ServerPlayerEntity player) {
+		if (player.currentScreenHandler instanceof ManageScreenHandler manageScreenHandler) {
+			manageScreenHandler.refresh();
+		}
+	}
+
 	private static int deleteShop(ServerCommandSource source, String name) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		if (!(source.getEntity() instanceof ServerPlayerEntity player)) {
 			return 0;
 		}
@@ -237,6 +301,9 @@ public final class LambdaCommand {
 	}
 
 	private static int openWarehouse(ServerCommandSource source, String name) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		if (!(source.getEntity() instanceof ServerPlayerEntity player)) {
 			return 0;
 		}
@@ -261,6 +328,9 @@ public final class LambdaCommand {
 	// ---------------------------------------------------------------------
 
 	private static int showRank(ServerCommandSource source) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		LambdaBank bank = LambdaBank.get(source.getServer());
 		List<Map.Entry<UUID, Long>> entries = new ArrayList<>(bank.getBalances().entrySet());
 		entries.sort((a, b) -> Long.compare(b.getValue(), a.getValue()));
@@ -283,6 +353,9 @@ public final class LambdaCommand {
 	}
 
 	private static int adminGive(ServerCommandSource source, String playerName, int amount) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		MinecraftServer server = source.getServer();
 		Optional<com.mojang.authlib.GameProfile> profile = server.getUserCache() == null
 				? Optional.empty() : server.getUserCache().findByName(playerName);
@@ -303,6 +376,9 @@ public final class LambdaCommand {
 	}
 
 	private static int adminSet(ServerCommandSource source, String playerName, int amount) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		MinecraftServer server = source.getServer();
 		Optional<com.mojang.authlib.GameProfile> profile = server.getUserCache() == null
 				? Optional.empty() : server.getUserCache().findByName(playerName);
@@ -323,6 +399,9 @@ public final class LambdaCommand {
 	}
 
 	private static int adminStats(ServerCommandSource source) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		LambdaBank bank = LambdaBank.get(source.getServer());
 		long total = bank.getBalances().values().stream().mapToLong(Long::longValue).sum();
 		int players = bank.getBalances().size();
@@ -336,6 +415,9 @@ public final class LambdaCommand {
 	}
 
 	private static int adminDeleteShop(ServerCommandSource source, String name) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		if (!(source.getEntity() instanceof ServerPlayerEntity player)) {
 			// Console/command-block callers: perform deletion without an owner to receive returned stock.
 			MinecraftServer server = source.getServer();
@@ -355,6 +437,9 @@ public final class LambdaCommand {
 	}
 
 	private static int adminLog(ServerCommandSource source, int count) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
 		LambdaBank bank = LambdaBank.get(source.getServer());
 		List<String> lines = bank.getRecentLog(count);
 		if (lines.isEmpty()) {

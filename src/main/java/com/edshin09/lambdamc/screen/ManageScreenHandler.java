@@ -3,7 +3,7 @@ package com.edshin09.lambdamc.screen;
 import com.edshin09.lambdamc.shop.CustomShop;
 import com.edshin09.lambdamc.shop.CustomShopData;
 import com.edshin09.lambdamc.shop.Listing;
-import com.edshin09.lambdamc.shop.ShopManager;
+import com.edshin09.lambdamc.shop.ShopType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
@@ -26,10 +26,13 @@ import java.util.Locale;
 import java.util.Optional;
 
 /**
- * Shop management GUI: shows the owner's current listings; clicking one
- * removes it (see {@link ShopManager#removeProduct}). Adding a product,
- * deleting the whole shop, and opening the warehouse are triggered from
- * extra client-side widgets that issue {@code /lambdamc shop ...} commands.
+ * Shop management GUI: shows the owner's current listings, one per slot in
+ * list order (slot index == listing index, matching the 1-based index the
+ * {@code /lambdamc shop setprice|removeproduct} commands take). All actual
+ * editing (select/edit price/delete/add product/warehouse) happens through
+ * client-side widgets in {@code ManageScreen} - clicking a slot here is
+ * intercepted purely client-side (no vanilla item transfer is possible on
+ * these slots), so this handler's own click logic is just a safe no-op.
  */
 public class ManageScreenHandler extends ScreenHandler {
 	public static final int ROWS = 5;
@@ -67,7 +70,8 @@ public class ManageScreenHandler extends ScreenHandler {
 		refresh();
 	}
 
-	private void refresh() {
+	/** Re-syncs the listing grid from the current shop state; call after any server-side edit. */
+	public void refresh() {
 		if (server == null) {
 			return;
 		}
@@ -76,7 +80,7 @@ public class ManageScreenHandler extends ScreenHandler {
 
 		for (int i = 0; i < SLOT_COUNT; i++) {
 			if (i < listings.size()) {
-				displayInventory.setStack(i, decorate(listings.get(i)));
+				displayInventory.setStack(i, decorate(listings.get(i), i + 1));
 			} else {
 				displayInventory.setStack(i, ItemStack.EMPTY);
 			}
@@ -84,12 +88,14 @@ public class ManageScreenHandler extends ScreenHandler {
 		this.sendContentUpdates();
 	}
 
-	private static ItemStack decorate(Listing listing) {
+	private static ItemStack decorate(Listing listing, int number) {
 		ItemStack stack = listing.getTemplate().copy();
 		NbtCompound display = stack.getOrCreateSubNbt("display");
 		NbtList lore = new NbtList();
+		String kindTag = listing.getKind() == ShopType.SELLING ? "§a[판매]" : "§6[구매]";
+		lore.add(NbtString.of(Text.Serializer.toJson(Text.literal("#" + number + " " + kindTag))));
 		lore.add(NbtString.of(Text.Serializer.toJson(Text.literal("§7가격: §e" + format(listing.getPrice()) + " λ"))));
-		lore.add(NbtString.of(Text.Serializer.toJson(Text.literal("§c클릭해서 이 상품 삭제"))));
+		lore.add(NbtString.of(Text.Serializer.toJson(Text.literal("§b클릭해서 선택 (아래에서 수정/삭제)"))));
 		display.put("Lore", lore);
 		return stack;
 	}
@@ -106,19 +112,8 @@ public class ManageScreenHandler extends ScreenHandler {
 
 	@Override
 	public void onSlotClick(int slotIndex, int button, SlotActionType actionType, PlayerEntity player) {
-		if (server == null) {
-			return;
-		}
-		if (slotIndex < 0 || slotIndex >= listings.size()) {
-			return;
-		}
-		if (!(player instanceof ServerPlayerEntity serverPlayer)) {
-			return;
-		}
-
-		ShopManager.Result result = ShopManager.removeProduct(serverPlayer, shopName, slotIndex + 1);
-		serverPlayer.sendMessage(Text.literal(result.message()), false);
-		refresh();
+		// Selection is handled entirely client-side (ManageScreen#mouseClicked);
+		// these slots never accept vanilla item movement either way.
 	}
 
 	private static String format(long value) {

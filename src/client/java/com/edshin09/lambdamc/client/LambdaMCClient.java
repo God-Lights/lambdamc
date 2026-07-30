@@ -6,7 +6,6 @@ import com.edshin09.lambdamc.client.screen.LambdaClientScreens;
 import com.edshin09.lambdamc.client.screen.LambdaShopListCache;
 import com.edshin09.lambdamc.network.LambdaNetworking;
 import com.edshin09.lambdamc.shop.ShopSummary;
-import com.edshin09.lambdamc.shop.ShopType;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -34,11 +33,11 @@ public final class LambdaMCClient implements ClientModInitializer {
 				UUID id = buf.readUuid();
 				String name = buf.readString();
 				String ownerName = buf.readString();
-				ShopType type = buf.readByte() == 0 ? ShopType.SELLING : ShopType.BUYING;
-				int listingCount = buf.readVarInt();
+				int sellCount = buf.readVarInt();
+				int buyCount = buf.readVarInt();
 				int totalSales = buf.readVarInt();
 				long createdAt = buf.readLong();
-				shops.add(new ShopSummary(id, name, ownerName, type, listingCount, totalSales, createdAt));
+				shops.add(new ShopSummary(id, name, ownerName, sellCount, buyCount, totalSales, createdAt));
 			}
 			client.execute(() -> LambdaShopListCache.set(shops));
 		});

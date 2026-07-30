@@ -94,7 +94,7 @@ public class ShopMenuScreen extends Screen {
 		int to = Math.min(filtered.size(), from + PAGE_SIZE);
 		for (int i = from; i < to; i++) {
 			ShopSummary shop = filtered.get(i);
-			String label = shop.name() + " (" + shop.ownerName() + ") [" + shop.type().displayName + "] 상품 " + shop.listingCount() + "개";
+			String label = shop.name() + " (" + shop.ownerName() + ") 판매" + shop.sellCount() + "/구매" + shop.buyCount();
 			addDrawableChild(ButtonWidget.builder(Text.literal(label), b -> onShopClicked(shop))
 					.dimensions(centerX - 100, rowsTop + (i - from) * 22, 200, 20).build());
 		}

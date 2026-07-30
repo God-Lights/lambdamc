@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/** A player-created shop: either sells items to other players, or buys items from them. */
+/** A player-created shop: a named container of {@link Listing}s, each independently a sell or buy line. */
 public final class CustomShop {
 	public static final int STORAGE_SIZE = 27;
 
@@ -19,18 +19,16 @@ public final class CustomShop {
 	private String name;
 	private final UUID owner;
 	private String ownerName;
-	private final ShopType type;
 	private final long createdAt;
 	private int totalSales;
 	private final List<Listing> listings = new ArrayList<>();
 	private final SimpleInventory storage = new SimpleInventory(STORAGE_SIZE);
 
-	public CustomShop(UUID id, String name, UUID owner, String ownerName, ShopType type, long createdAt) {
+	public CustomShop(UUID id, String name, UUID owner, String ownerName, long createdAt) {
 		this.id = id;
 		this.name = name;
 		this.owner = owner;
 		this.ownerName = ownerName;
-		this.type = type;
 		this.createdAt = createdAt;
 	}
 
@@ -54,10 +52,6 @@ public final class CustomShop {
 		this.ownerName = ownerName;
 	}
 
-	public ShopType getType() {
-		return type;
-	}
-
 	public long getCreatedAt() {
 		return createdAt;
 	}
@@ -78,8 +72,12 @@ public final class CustomShop {
 		return listings.stream().filter(l -> l.getId().equals(listingId)).findFirst();
 	}
 
-	public Optional<Listing> findListingByItem(ItemStack stack) {
-		return listings.stream().filter(l -> l.matches(stack)).findFirst();
+	public Optional<Listing> findListing(ItemStack stack, ShopType kind) {
+		return listings.stream().filter(l -> l.matches(stack, kind)).findFirst();
+	}
+
+	public long countListingsOfKind(ShopType kind) {
+		return listings.stream().filter(l -> l.getKind() == kind).count();
 	}
 
 	public SimpleInventory getStorage() {
@@ -144,7 +142,6 @@ public final class CustomShop {
 		nbt.putString("name", name);
 		nbt.putUuid("owner", owner);
 		nbt.putString("ownerName", ownerName);
-		nbt.putString("type", type.name());
 		nbt.putLong("createdAt", createdAt);
 		nbt.putInt("totalSales", totalSales);
 
@@ -174,10 +171,9 @@ public final class CustomShop {
 		String name = nbt.getString("name");
 		UUID owner = nbt.getUuid("owner");
 		String ownerName = nbt.getString("ownerName");
-		ShopType type = ShopType.valueOf(nbt.getString("type"));
 		long createdAt = nbt.getLong("createdAt");
 
-		CustomShop shop = new CustomShop(id, name, owner, ownerName, type, createdAt);
+		CustomShop shop = new CustomShop(id, name, owner, ownerName, createdAt);
 		shop.totalSales = nbt.getInt("totalSales");
 
 		NbtList listingList = nbt.getList("listings", NbtElement.COMPOUND_TYPE);

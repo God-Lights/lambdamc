@@ -51,9 +51,10 @@ public final class LambdaConfig {
 	public double customShopFeeRate = 0.05;
 	public long minListingPrice = 1L;
 	public long maxListingPrice = 10_000_000L;
-	public int maxSellShopsPerPlayer = 1;
-	public int maxBuyShopsPerPlayer = 1;
-	public int maxListingsPerShop = 45;
+	/** Total custom shops (each may freely mix sell/buy listings) a single player may own. */
+	public int maxShopsPerPlayer = 2;
+	/** Cap per listing kind (sell vs buy) within one shop; the browse/manage GUI has 20 slots per side. */
+	public int maxListingsPerShop = 20;
 
 	public static void load() {
 		Path path = configPath();

@@ -16,6 +16,12 @@ public final class LambdaEconomyEvents {
 
 	public static void register() {
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
+			if (!server.isDedicated()) {
+				// LambdaMC is dedicated-server-only content: singleplayer/LAN worlds
+				// never get a balance, so their state can never look like real server data.
+				return;
+			}
+
 			ServerPlayerEntity player = handler.getPlayer();
 			LambdaBank bank = LambdaBank.get(server);
 			UUID uuid = player.getUuid();

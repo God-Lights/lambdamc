@@ -2,7 +2,6 @@ package com.edshin09.lambdamc.network;
 
 import com.edshin09.lambdamc.LambdaMC;
 import com.edshin09.lambdamc.shop.ShopSummary;
-import com.edshin09.lambdamc.shop.ShopType;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
@@ -44,8 +43,8 @@ public final class LambdaNetworking {
 			buf.writeUuid(shop.id());
 			buf.writeString(shop.name());
 			buf.writeString(shop.ownerName());
-			buf.writeByte(shop.type() == ShopType.SELLING ? 0 : 1);
-			buf.writeVarInt(shop.listingCount());
+			buf.writeVarInt(shop.sellCount());
+			buf.writeVarInt(shop.buyCount());
 			buf.writeVarInt(shop.totalSales());
 			buf.writeLong(shop.createdAt());
 		}

@@ -4,6 +4,7 @@
   "category.lambdamc": "LambdaMC",
 
   "lambdamc.join.welcome": "LambdaMC 서버에 오신 것을 환영합니다! 시작 자금 2,000 λ 이 지급되었습니다.",
+  "lambdamc.dedicated_only": "이 기능은 데디케이트(전용) 서버에서만 사용할 수 있습니다. (싱글플레이/LAN 미지원)",
   "lambdamc.notify.header": "=== 접속해 있지 않은 동안의 상점 알림 ===",
 
   "lambdamc.shop.list.header": "=== LambdaMC 상점 목록 ===",

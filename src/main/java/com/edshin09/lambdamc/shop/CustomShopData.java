@@ -38,8 +38,8 @@ public final class CustomShopData extends PersistentState {
 		return name.equalsIgnoreCase(DEFAULT_SHOP_NAME) || findByName(name).isPresent();
 	}
 
-	public long countByOwnerAndType(UUID owner, ShopType type) {
-		return shops.values().stream().filter(s -> s.getOwner().equals(owner) && s.getType() == type).count();
+	public long countByOwner(UUID owner) {
+		return shops.values().stream().filter(s -> s.getOwner().equals(owner)).count();
 	}
 
 	public void add(CustomShop shop) {

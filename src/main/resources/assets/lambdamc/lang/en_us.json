@@ -4,6 +4,7 @@
   "category.lambdamc": "LambdaMC",
 
   "lambdamc.join.welcome": "Welcome to the LambdaMC server! You received a starting bonus of 2,000 λ.",
+  "lambdamc.dedicated_only": "This feature is only available on a dedicated server. (not in singleplayer/LAN)",
   "lambdamc.notify.header": "=== Shop notifications from while you were away ===",
 
   "lambdamc.shop.list.header": "=== LambdaMC Shops ===",

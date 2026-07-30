@@ -1,10 +1,13 @@
 package com.edshin09.lambdamc.shop;
 
-/** What a custom shop does. */
+/**
+ * What a single {@link Listing} does. A shop is just a named container of
+ * listings, so the same shop can freely mix both kinds.
+ */
 public enum ShopType {
-	/** Owner stocks items; other players pay λ to buy them. */
+	/** Owner stocks the item; other players pay λ to buy it. */
 	SELLING("판매"),
-	/** Owner pays λ (from their own balance) to buy items other players sell in. */
+	/** Owner pays λ (from their own balance) to buy the item other players sell in. */
 	BUYING("구매");
 
 	public final String displayName;

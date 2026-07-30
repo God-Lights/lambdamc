@@ -38,7 +38,8 @@ public class TradeScreenHandler extends ScreenHandler {
 
 		for (int row = 0; row < ROWS; row++) {
 			for (int col = 0; col < 9; col++) {
-				this.addSlot(new DisplaySlot(displayInventory, col + row * 9, 8 + col * 18, 18 + row * 18));
+				// Extra 10px top margin (28 instead of 18) leaves room for a subtitle row above the grid.
+				this.addSlot(new DisplaySlot(displayInventory, col + row * 9, 8 + col * 18, 28 + row * 18));
 			}
 		}
 	}
