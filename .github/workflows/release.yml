@@ -2,6 +2,8 @@ name: Build and Release
 
 on:
   push:
+    branches:
+      - claude/minecraft-lambda-currency-mod-qdslv2
     tags:
       - 'v*'
   workflow_dispatch:
@@ -50,8 +52,11 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "tag=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
             echo "prerelease=${{ github.event.inputs.prerelease }}" >> "$GITHUB_OUTPUT"
-          else
+          elif [ "${{ github.ref_type }}" = "tag" ]; then
             echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=v0.1.0-alpha" >> "$GITHUB_OUTPUT"
             echo "prerelease=true" >> "$GITHUB_OUTPUT"
           fi
 
