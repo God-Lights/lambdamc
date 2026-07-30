@@ -1,5 +1,7 @@
 {
   "item.lambdamc.reset_card": "Server Reset Card",
+  "item.lambdamc.lambda_voucher": "Lambda Voucher",
+  "lambdamc.voucher.redeemed": "Redeemed λ %s!",
   "key.lambdamc.open_shop_menu": "Open Shop Menu",
   "category.lambdamc": "LambdaMC",
 

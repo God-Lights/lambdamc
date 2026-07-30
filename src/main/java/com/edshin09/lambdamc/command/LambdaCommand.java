@@ -1,6 +1,7 @@
 package com.edshin09.lambdamc.command;
 
 import com.edshin09.lambdamc.economy.LambdaBank;
+import com.edshin09.lambdamc.item.LambdaItems;
 import com.edshin09.lambdamc.network.LambdaNetworking;
 import com.edshin09.lambdamc.screen.ManageScreenHandler;
 import com.edshin09.lambdamc.screen.TradeScreenHandler;
@@ -111,6 +112,17 @@ public final class LambdaCommand {
 														.executes(ctx -> adminSet(ctx.getSource(),
 																StringArgumentType.getString(ctx, "player"),
 																IntegerArgumentType.getInteger(ctx, "amount"))))))
+								.then(CommandManager.literal("voucher")
+										.then(CommandManager.argument("player", StringArgumentType.word())
+												.then(CommandManager.argument("amount", IntegerArgumentType.integer(1))
+														.executes(ctx -> adminVoucher(ctx.getSource(),
+																StringArgumentType.getString(ctx, "player"),
+																IntegerArgumentType.getInteger(ctx, "amount"), 1))
+														.then(CommandManager.argument("count", IntegerArgumentType.integer(1, 64))
+																.executes(ctx -> adminVoucher(ctx.getSource(),
+																		StringArgumentType.getString(ctx, "player"),
+																		IntegerArgumentType.getInteger(ctx, "amount"),
+																		IntegerArgumentType.getInteger(ctx, "count")))))))
 								.then(CommandManager.literal("stats")
 										.executes(ctx -> adminStats(ctx.getSource())))
 								.then(CommandManager.literal("deleteshop")
@@ -395,6 +407,30 @@ public final class LambdaCommand {
 			LambdaNetworking.sendBalance(online, bank.getBalance(uuid));
 		}
 		source.sendFeedback(() -> Text.literal(playerName + "의 잔액을 " + format(amount) + " λ로 설정했습니다."), true);
+		return 1;
+	}
+
+	/** Gives an online player physical, redeemable λ voucher item(s) instead of editing their balance directly. */
+	private static int adminVoucher(ServerCommandSource source, String playerName, int amount, int count) {
+		if (!requireDedicated(source)) {
+			return 0;
+		}
+		MinecraftServer server = source.getServer();
+		ServerPlayerEntity target = server.getPlayerManager().getPlayer(playerName);
+		if (target == null) {
+			source.sendError(Text.literal("접속 중인 플레이어만 교환권을 받을 수 있습니다: " + playerName));
+			return 0;
+		}
+
+		net.minecraft.item.ItemStack voucher = LambdaItems.createVoucher(amount);
+		voucher.setCount(count);
+		if (!target.getInventory().insertStack(voucher)) {
+			target.dropItem(voucher, false);
+		}
+
+		LambdaBank.get(server).log(source.getName() + "이(가) " + playerName + "에게 람다 교환권(λ " + amount + ") x" + count + " 지급 (관리자)");
+		int finalCount = count;
+		source.sendFeedback(() -> Text.literal(playerName + "에게 람다 교환권(λ " + format(amount) + ") x" + finalCount + "을(를) 지급했습니다."), true);
 		return 1;
 	}
 

@@ -1,5 +1,7 @@
 {
   "item.lambdamc.reset_card": "서버 초기화 카드",
+  "item.lambdamc.lambda_voucher": "람다 교환권",
+  "lambdamc.voucher.redeemed": "λ %s 이(가) 교환되었습니다!",
   "key.lambdamc.open_shop_menu": "상점 목록 열기",
   "category.lambdamc": "LambdaMC",
 
