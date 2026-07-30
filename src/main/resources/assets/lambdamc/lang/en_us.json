@@ -1,0 +1,29 @@
+{
+  "item.lambdamc.reset_card": "Server Reset Card",
+  "itemGroup.lambdamc": "LambdaMC",
+
+  "lambdamc.command.no_permission": "You do not have permission to use this command.",
+  "lambdamc.command.balance": "Balance: %s λ",
+
+  "lambdamc.shop.list.header": "=== LambdaMC Shops ===",
+  "lambdamc.shop.list.entry": "» %s (click to enter)",
+  "lambdamc.shop.not_found": "No shop named '%s' was found.",
+  "lambdamc.shop.title": "%s",
+
+  "lambdamc.shop.buy.success": "Bought %s for %s λ.",
+  "lambdamc.shop.buy.not_enough_money": "Not enough money. (need %s λ, have %s λ)",
+  "lambdamc.shop.buy.sold_out": "This item has already been sold once on this server.",
+  "lambdamc.shop.buy.inventory_full": "Your inventory was full, so the item was dropped on the ground.",
+
+  "lambdamc.shop.sell.success": "Sold 1x %s for %s λ.",
+  "lambdamc.shop.sell.need_item": "You need %s to sell.",
+  "lambdamc.shop.sell.sold_out": "This item can no longer be traded on this server. (already traded once)",
+
+  "lambdamc.rank.header": "=== λ Lambda Leaderboard ===",
+  "lambdamc.rank.entry": "%s. %s - %s λ",
+  "lambdamc.rank.empty": "No players registered yet.",
+
+  "lambdamc.join.welcome": "Welcome to the LambdaMC server! You received a starting bonus of 2,000 λ.",
+
+  "lambdamc.reset_card.use": "[WARNING] %s used the Server Reset Card! ...just kidding. Nothing happened. (troll item)"
+}

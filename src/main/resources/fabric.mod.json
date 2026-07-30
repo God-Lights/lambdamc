@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "id": "lambdamc",
+  "version": "${version}",
+  "name": "LambdaMC",
+  "description": "람다(Lambda, λ / RBL) 서버 화폐와 상점 시스템을 추가하는 모드",
+  "authors": [
+    "EdShin09"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.edshin09.lambdamc.LambdaMC"
+    ],
+    "client": [
+      "com.edshin09.lambdamc.client.LambdaMCClient"
+    ]
+  },
+  "mixins": [],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.20.1",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}
