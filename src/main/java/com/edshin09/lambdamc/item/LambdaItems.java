@@ -4,14 +4,14 @@ import com.edshin09.lambdamc.LambdaMC;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.Registry;
 import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
 /**
- * Custom items added by LambdaMC. Note that most shop rewards (diamonds,
- * netherite, player heads, enchanted books, ...) are plain vanilla items;
- * this class only holds the items that have no vanilla equivalent.
+ * Custom items added by LambdaMC. Most shop rewards (diamonds, netherite,
+ * player heads, enchanted books, ...) are plain vanilla items; this class
+ * only holds the items that have no vanilla equivalent.
  */
 public final class LambdaItems {
 	/** NBT flag set on item stacks that must never be placed as a block (e.g. Ed's head). */

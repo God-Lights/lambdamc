@@ -8,7 +8,7 @@ import net.minecraft.item.Items;
 
 import java.util.List;
 
-/** Static item/price pools used to roll the daily rotating shop stock. */
+/** Static item/price pools used to roll the default shop's daily rotating stock. */
 public final class ShopItems {
 	public record PricedEntry(ItemStack template, long price) {
 		public ItemStack fresh() {

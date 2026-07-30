@@ -2,21 +2,19 @@ package com.edshin09.lambdamc.item;
 
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 /**
- * The 100,000,000 λ "Server Reset Card". Pure troll item: it never wipes
+ * The (very expensive) "Server Reset Card". Pure troll item: it never wipes
  * any real server data. Using it broadcasts a scary-looking warning to the
  * whole server, immediately followed by a "just kidding" reveal, and briefly
  * nauseates the user for comedic effect. It is consumed on use.
@@ -27,7 +25,7 @@ public final class ResetCardItem extends Item {
 	}
 
 	@Override
-	public TypedActionResult<ItemStack> use(World world, net.minecraft.entity.player.PlayerEntity user, Hand hand) {
+	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
 		ItemStack stack = user.getStackInHand(hand);
 		if (world.isClient) {
 			return TypedActionResult.success(stack, false);

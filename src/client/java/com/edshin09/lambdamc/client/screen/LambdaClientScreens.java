@@ -8,6 +8,7 @@ public final class LambdaClientScreens {
 	}
 
 	public static void register() {
-		HandledScreens.register(LambdaScreenHandlers.SHOP, ShopScreen::new);
+		HandledScreens.register(LambdaScreenHandlers.TRADE, TradeScreen::new);
+		HandledScreens.register(LambdaScreenHandlers.MANAGE, ManageScreen::new);
 	}
 }

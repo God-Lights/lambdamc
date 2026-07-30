@@ -2,20 +2,17 @@ package com.edshin09.lambdamc.shop;
 
 import net.minecraft.util.Formatting;
 
-/** Rarity tiers for the daily rotating shop stock. */
+/** Rarity tiers for the default shop's daily rotating stock. */
 public enum Rarity {
-	NORMAL("노말", Formatting.WHITE, 60),
-	EPIC("에픽", Formatting.LIGHT_PURPLE, 30),
-	MYSTIC("미스틱", Formatting.AQUA, 10);
+	NORMAL("노말", Formatting.WHITE),
+	EPIC("에픽", Formatting.LIGHT_PURPLE),
+	MYSTIC("미스틱", Formatting.AQUA);
 
 	public final String displayName;
 	public final Formatting color;
-	/** Relative weight used when rolling today's rotating stock. */
-	public final int weight;
 
-	Rarity(String displayName, Formatting color, int weight) {
+	Rarity(String displayName, Formatting color) {
 		this.displayName = displayName;
 		this.color = color;
-		this.weight = weight;
 	}
 }
